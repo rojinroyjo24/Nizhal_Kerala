@@ -1,0 +1,89 @@
+/* ============================================
+   HIDDEN KERALA - Global Design System
+   ============================================ */
+
+/* CSS Custom Properties */
+:root {
+  --primary: #1B4332;
+  --primary-light: #2D6A4F;
+  --accent: #F4A261;
+  --accent-light: #FFDDD2;
+  --gold: #E9C46A;
+  --dark: #1A1A2E;
+  --text-dark: #2C2C2C;
+  --text-muted: #6B7280;
+  --bg-light: #f8f6f0;
+  --bg-card: #ffffff;
+  --card-radius: 16px;
+  --shadow-card: 0 4px 24px rgba(27, 67, 50, 0.1);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-dark);
+  background: #ffffff;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  transition: var(--transition);
+}
+
+button {
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Playfair Display', serif;
+  line-height: 1.2;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Selection */
+::selection {
+  background: rgba(27, 67, 50, 0.2);
+  color: var(--primary);
+}
