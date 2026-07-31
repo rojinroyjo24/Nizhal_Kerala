@@ -9,6 +9,7 @@ from .views import (
     PlaceSurpriseView,
     DistrictListView,
     CategoryListView,
+    AutoSeedView,
 )
 from .admin_views import (
     AdminDashboardStatsView,
@@ -21,6 +22,7 @@ from .admin_views import (
 
 urlpatterns = [
     # Public place endpoints
+    path('seed/', AutoSeedView.as_view(), name='auto-seed'),
     path('places/surprise/', PlaceSurpriseView.as_view(), name='place-surprise'),
     path('places/', PlaceListCreateView.as_view(), name='place-list'),
     path('places/<int:pk>/', PlaceRetrieveUpdateDestroyView.as_view(), name='place-detail'),

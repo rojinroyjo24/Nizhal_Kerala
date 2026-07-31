@@ -23,6 +23,14 @@ class PlaceListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        # Auto-seed if production database is empty
+        if Place.objects.count() == 0:
+            from django.core.management import call_command
+            try:
+                call_command('seed_data')
+            except Exception:
+                pass
+
         qs = Place.objects.select_related('added_by').prefetch_related('reviews')
         try:
             qs = Place.objects.select_related('added_by').prefetch_related('reviews', 'images')
@@ -196,10 +204,23 @@ class CategoryListView(APIView):
         category_icons = {
             'Waterfall': '🌊', 'Trekking': '🥾', 'Viewpoint': '🏔️',
             'Beach': '🏖️', 'Village': '🏘️', 'Forest': '🌲',
-            'River': '🏞️', 'Heritage': '🏛️',
+            'Cave': '🦇', 'River': '🚣', 'Lake': '🛶', 'Historic': '🏛️'
         }
         categories = [
             {'name': choice[0], 'icon': category_icons.get(choice[0], '📍')}
             for choice in Place.CATEGORY_CHOICES
         ]
         return Response({'categories': categories})
+
+
+class AutoSeedView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        from django.core.management import call_command
+        try:
+            call_command('seed_data')
+            count = Place.objects.count()
+            return Response({'status': 'success', 'message': f'{count} places and accounts seeded successfully!'})
+        except Exception as e:
+            return Response({'status': 'error', 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
