@@ -29,11 +29,11 @@ import { ToastService } from '../../services/toast.service';
         <p class="auth-sub">Sign in to share and discover hidden places</p>
         <form (ngSubmit)="onLogin()" #loginForm="ngForm">
           <div class="field-group">
-            <label>Email Address</label>
-            <div class="icon-wrap"><i class="fas fa-envelope"></i>
-              <input type="email" name="email" [(ngModel)]="form.email" required placeholder="explorer@example.com" #emCtrl="ngModel" [class.err]="emCtrl.invalid && emCtrl.touched">
+            <label>Email Address or Username</label>
+            <div class="icon-wrap"><i class="fas fa-user"></i>
+              <input type="text" name="email" [(ngModel)]="form.email" required placeholder="Email or Username" #emCtrl="ngModel" [class.err]="emCtrl.invalid && emCtrl.touched">
             </div>
-            @if (emCtrl.invalid && emCtrl.touched) { <span class="err-msg">Please enter a valid email.</span> }
+            @if (emCtrl.invalid && emCtrl.touched) { <span class="err-msg">Please enter your email or username.</span> }
           </div>
           <div class="field-group">
             <label>Password</label>
