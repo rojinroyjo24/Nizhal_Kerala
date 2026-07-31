@@ -69,8 +69,22 @@ import { PlaceCardComponent } from '../../components/place-card/place-card.compo
           <main class="places-area">
             <div class="toolbar">
               <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" [(ngModel)]="filters.search" placeholder="Search places..." (keyup.enter)="applyFilters()">
+                <button type="button" class="search-icon-btn" (click)="applyFilters()" title="Search">
+                  <i class="fas fa-search"></i>
+                </button>
+                <input 
+                  type="text" 
+                  [(ngModel)]="filters.search" 
+                  placeholder="Search places by name or district..." 
+                  (input)="onSearchInput()" 
+                  (keyup.enter)="applyFilters()"
+                >
+                @if (filters.search) {
+                  <button type="button" class="search-clear-btn" (click)="clearSearch()" title="Clear search">
+                    <i class="fas fa-times"></i>
+                  </button>
+                }
+                <button type="button" class="mobile-search-go-btn" (click)="applyFilters()">Search</button>
               </div>
               <div class="toolbar-right">
                 <select [(ngModel)]="filters.sort" (change)="applyFilters()" class="sort-sel">
@@ -152,13 +166,18 @@ import { PlaceCardComponent } from '../../components/place-card/place-card.compo
     .apply-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(27,67,50,0.3); }
     .places-area { min-width: 0; }
     .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
-    .search-bar { flex: 1; display: flex; align-items: center; gap: 10px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; padding: 10px 16px; min-width: 200px; }
-    .search-bar i { color: #9ca3af; }
-    .search-bar input { flex: 1; border: none; outline: none; font-family: 'Poppins',sans-serif; font-size: 0.875rem; color: #374151; }
+    .search-bar { flex: 1; display: flex; align-items: center; gap: 8px; background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 6px 12px; min-width: 240px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .search-bar:focus-within { border-color: #2D6A4F; box-shadow: 0 0 0 3px rgba(45,106,79,0.15); }
+    .search-icon-btn { background: none; border: none; color: #1B4332; cursor: pointer; padding: 6px; font-size: 1rem; }
+    .search-clear-btn { background: none; border: none; color: #9ca3af; cursor: pointer; padding: 6px; font-size: 0.9rem; }
+    .search-clear-btn:hover { color: #ef4444; }
+    .mobile-search-go-btn { display: none; padding: 8px 16px; background: #1B4332; color: white; border: none; border-radius: 8px; font-family: 'Poppins',sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+    .search-bar input { flex: 1; border: none; outline: none; font-family: 'Poppins',sans-serif; font-size: 0.9rem; color: #374151; background: transparent; padding: 6px 0; }
     .toolbar-right { display: flex; gap: 10px; align-items: center; }
     .sort-sel { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-family: 'Poppins',sans-serif; font-size: 0.85rem; background: white; outline: none; cursor: pointer; }
     .mobile-filter-btn { display: none; padding: 10px 16px; background: #1B4332; color: white; border: none; border-radius: 10px; font-family: 'Poppins',sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; align-items: center; gap: 6px; }
     .f-badge { background: #F4A261; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.7rem; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; }
+    .filter-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1100; backdrop-filter: blur(2px); }
     .exp-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
     .sk-card { border-radius: 16px; overflow: hidden; background: white; }
     .sk { background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
@@ -179,7 +198,19 @@ import { PlaceCardComponent } from '../../components/place-card/place-card.compo
     .surprise-fab { position: fixed; bottom: 32px; right: 32px; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,#1B4332,#2D6A4F); color: white; border: none; font-size: 1.4rem; cursor: pointer; box-shadow: 0 6px 24px rgba(27,67,50,0.4); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 500; }
     .surprise-fab:hover:not([disabled]) { transform: scale(1.15) rotate(-15deg); box-shadow: 0 10px 32px rgba(27,67,50,0.5); }
     .surprise-fab[disabled] { opacity: 0.6; cursor: not-allowed; }
-    @media (max-width: 992px) { .explore-inner { grid-template-columns: 1fr; } .filter-sidebar { position: static; display: none; } .filter-sidebar.mobile-open { display: block; } .mobile-filter-btn { display: flex; } .exp-grid { grid-template-columns: repeat(2,1fr); } }
+
+    @media (max-width: 992px) {
+      .explore-inner { grid-template-columns: 1fr; }
+      .filter-sidebar { position: fixed; bottom: 0; left: 0; right: 0; top: auto; z-index: 1200; display: block; transform: translateY(100%); transition: transform 0.3s ease-in-out; }
+      .filter-sidebar.mobile-open { transform: translateY(0); }
+      .filter-card { border-radius: 24px 24px 0 0; max-height: 80vh; overflow-y: auto; box-shadow: 0 -8px 32px rgba(0,0,0,0.2); }
+      .mobile-filter-btn { display: flex; }
+      .mobile-search-go-btn { display: block; }
+      .exp-grid { grid-template-columns: repeat(2,1fr); }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar-right { justify-content: space-between; width: 100%; }
+      .search-bar { width: 100%; min-width: 0; }
+    }
     @media (max-width: 576px) { .exp-grid { grid-template-columns: 1fr; } }
   `]
 })
@@ -206,6 +237,7 @@ export class ExploreComponent implements OnInit {
     { value: 'Year Round', label: 'Year Round', icon: '📅' },
   ];
   surpriseLoading = false;
+  private searchTimeout: any;
 
   get currentSeasonHint(): string {
     const m = new Date().getMonth() + 1;
@@ -233,6 +265,18 @@ export class ExploreComponent implements OnInit {
       next: (r) => { this.places = r.results; this.totalCount = r.count; this.totalPages = Math.ceil(r.count / 10); this.isLoading = false; },
       error: () => { this.isLoading = false; }
     });
+  }
+
+  onSearchInput() {
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.applyFilters();
+    }, 350);
+  }
+
+  clearSearch() {
+    this.filters.search = '';
+    this.applyFilters();
   }
 
   applyFilters() { this.currentPage = 1; this.filterOpen = false; this.loadPlaces(); }

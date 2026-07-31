@@ -65,15 +65,25 @@ class PlaceListSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         request = self.context.get('request')
-        if obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
+        if obj.image:
+            img_str = str(obj.image)
+            if img_str.startswith('http://') or img_str.startswith('https://'):
+                return img_str
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
         return None
 
     def get_first_gallery_image(self, obj):
         request = self.context.get('request')
         first = obj.images.first()
-        if first and request:
-            return request.build_absolute_uri(first.image.url)
+        if first:
+            img_str = str(first.image)
+            if img_str.startswith('http://') or img_str.startswith('https://'):
+                return img_str
+            if request:
+                return request.build_absolute_uri(first.image.url)
+            return first.image.url
         return None
 
 
@@ -97,6 +107,11 @@ class PlaceDetailSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         request = self.context.get('request')
-        if obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
+        if obj.image:
+            img_str = str(obj.image)
+            if img_str.startswith('http://') or img_str.startswith('https://'):
+                return img_str
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
         return None
