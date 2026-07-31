@@ -85,11 +85,69 @@ SAMPLE_PLACES = [
         'difficulty': 'Moderate',
         'google_maps_link': 'https://maps.google.com/?q=Periyar+River+Senapathy+Kerala',
     },
+    {
+        'title': 'Kuttanad Waterways – Rice Bowl Below Sea Level',
+        'description': 'Famous as the Rice Bowl of Kerala, Kuttanad is one of the few places in the world where farming is done up to 3 meters below sea level. Narrow palm-fringed backwater channels connect charming farming hamlets. A shikara boat trip through the heart of Kuttanad gives an intimate glimpse into daily life, duck farming, and emerald paddy fields.',
+        'district': 'Alappuzha',
+        'category': 'Village',
+        'difficulty': 'Easy',
+        'google_maps_link': 'https://maps.google.com/?q=Kuttanad+Alappuzha',
+    },
+    {
+        'title': 'Illikkal Kallu – Peak of Three Boulders',
+        'description': 'Rising to 4000 feet above sea level, Illikkal Kallu is a majestic rock formation comprising three distinct boulders. The narrow bridge-like rock trail known as Narakathattu (Hell Bridge) leads to the peak. The mist-clad valley views and cool mountain breeze make this a favorite among weekend hikers.',
+        'district': 'Kottayam',
+        'category': 'Trekking',
+        'difficulty': 'Hard',
+        'google_maps_link': 'https://maps.google.com/?q=Illikkal+Kallu+Kottayam',
+    },
+    {
+        'title': 'Bhoothathankettu Dam & Forest Reserve',
+        'description': 'Mythological folklore says demons built this natural dam overnight to flood the Trikkakara temple. Surrounded by thick green forests and Periyar River backwaters, Bhoothathankettu offers quiet boat safaris, bird watching, and forest walking trails leading to ancient cave formations.',
+        'district': 'Ernakulam',
+        'category': 'Forest',
+        'difficulty': 'Easy',
+        'google_maps_link': 'https://maps.google.com/?q=Bhoothathankettu+Dam',
+    },
+    {
+        'title': 'Muzhappilangad Drive-in Beach',
+        'description': 'Asia\'s longest drive-in beach stretching nearly 4 kilometers along Malabar coast. Hard sand allows cars and motorbikes to drive right along the water edge. Sunset drives, beach volleyball, and local seafood shacks make this a unique coastal experience.',
+        'district': 'Kannur',
+        'category': 'Beach',
+        'difficulty': 'Easy',
+        'google_maps_link': 'https://maps.google.com/?q=Muzhappilangad+Drive-in+Beach',
+    },
+    {
+        'title': 'Bekal Fort & Coastal Promontory',
+        'description': 'The largest fort in Kerala, standing dramatically on a headland overlooking the Arabian Sea. Featuring observation towers, underground tunnels, and well-manicured green lawns, Bekal Fort offers scenic coastal views and rich history spanning 300 years.',
+        'district': 'Kasaragod',
+        'category': 'Viewpoint',
+        'difficulty': 'Easy',
+        'google_maps_link': 'https://maps.google.com/?q=Bekal+Fort+Kasaragod',
+    },
+    {
+        'title': 'Nilambur Teak Plantation & Canoli Plot',
+        'description': 'Home to the world\'s oldest teak plantation planted in 1840 by H.V. Conolly. Features massive teak trees towering over 40 meters tall, an interactive Teak Museum, and hanging bridge across Chaliyar River.',
+        'district': 'Malappuram',
+        'category': 'Forest',
+        'difficulty': 'Easy',
+        'google_maps_link': 'https://maps.google.com/?q=Conolly+Plot+Nilambur',
+    },
+    {
+        'title': 'Gavi Eco-Tourism Wilderness Trail',
+        'description': 'Deep inside Periyar Tiger Reserve, Gavi is an untouched eco-tourism haven. Offers guided canopy walks, cardamom plantation tours, boating in Gavi Lake, and forest night camping under Kerala Forest Department supervision.',
+        'district': 'Pathanamthitta',
+        'category': 'Forest',
+        'difficulty': 'Moderate',
+        'google_maps_link': 'https://maps.google.com/?q=Gavi+Pathanamthitta',
+    },
 ]
 
 
+from reviews.models import Review
+
 class Command(BaseCommand):
-    help = 'Seeds the database with sample Kerala places, a demo user, and an admin user'
+    help = 'Seeds the database with sample Kerala places, users, and admin user'
 
     def handle(self, *args, **options):
         self.stdout.write('🌿 Seeding Hidden Kerala database...')
@@ -103,7 +161,6 @@ class Command(BaseCommand):
                 'last_name': 'Admin',
             }
         )
-        # Always force-set staff, superuser, and password
         admin.is_staff = True
         admin.is_superuser = True
         admin.set_password('Admin@123')
@@ -111,7 +168,7 @@ class Command(BaseCommand):
         if created:
             self.stdout.write(self.style.SUCCESS('✅ Admin created: admin@nizhal.com / Admin@123'))
         else:
-            self.stdout.write(self.style.SUCCESS('🔄 Admin password reset: admin@nizhal.com / Admin@123'))
+            self.stdout.write(self.style.SUCCESS('🔄 Admin password updated: admin@nizhal.com / Admin@123'))
 
         # ── Create DEMO user ───────────────────────────────────────────────
         demo_user, created = User.objects.get_or_create(
@@ -122,28 +179,56 @@ class Command(BaseCommand):
                 'last_name': 'Explorer',
             }
         )
+        demo_user.set_password('password123')
+        demo_user.save()
         if created:
-            demo_user.set_password('password123')
-            demo_user.save()
             self.stdout.write(self.style.SUCCESS('✅ Demo user created: explorer@example.com / password123'))
-        else:
-            self.stdout.write('ℹ️  Demo user already exists')
+
+        # ── Create AMMU user ───────────────────────────────────────────────
+        ammu_user, created = User.objects.get_or_create(
+            email='ammu@example.com',
+            defaults={
+                'username': 'Ammu_29',
+                'first_name': 'Ammu',
+                'last_name': 'User',
+            }
+        )
+        ammu_user.set_password('password123')
+        ammu_user.save()
+        if created:
+            self.stdout.write(self.style.SUCCESS('✅ Ammu user created: Ammu_29 / password123'))
 
         # ── Create PLACES ──────────────────────────────────────────────────
         created_count = 0
+        all_places = []
         for place_data in SAMPLE_PLACES:
             place, created = Place.objects.get_or_create(
                 title=place_data['title'],
                 defaults={**place_data, 'added_by': demo_user, 'status': 'approved'}
             )
+            all_places.append(place)
             if created:
                 created_count += 1
                 self.stdout.write(f'  📍 Added: {place.title}')
 
+        # ── Create SAMPLE REVIEWS ──────────────────────────────────────────
+        if all_places:
+            Review.objects.get_or_create(
+                place=all_places[0],
+                user=ammu_user,
+                defaults={'rating': 5, 'comment': 'Breathtaking experience! Highly recommended for trekkers and nature lovers.'}
+            )
+            Review.objects.get_or_create(
+                place=all_places[1],
+                user=demo_user,
+                defaults={'rating': 5, 'comment': 'The heart-shaped lake is absolutely stunning. Unforgettable views!'}
+            )
+
         self.stdout.write(self.style.SUCCESS(
-            f'\n✅ Seeding complete! {created_count} new places added.'
+            f'\n✅ Seeding complete! {created_count} places ready.'
         ))
-        self.stdout.write('\n' + '─' * 50)
-        self.stdout.write('🛡️  ADMIN LOGIN  → admin@nizhal.com  / Admin@123')
-        self.stdout.write('👤  USER LOGIN   → explorer@example.com / password123')
-        self.stdout.write('─' * 50)
+        self.stdout.write('\n' + '─' * 55)
+        self.stdout.write('🛡️  ADMIN ACCOUNT → Email: admin@nizhal.com  | Pass: Admin@123')
+        self.stdout.write('👤  EXPLORER ACCOUNT → Username: explorer | Pass: password123')
+        self.stdout.write('👤  AMMU ACCOUNT → Username: Ammu_29 | Pass: password123')
+        self.stdout.write('─' * 55)
